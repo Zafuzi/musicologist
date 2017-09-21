@@ -28,9 +28,42 @@ function renderList() {
     $list.append($item)
   }
 }
-
+var playlist = [];
 $('#getPlaylistBtn').click(function (event) {
   // TODO: Display a list of music.
   // You may use anything from musicInfo.
+  console.log(musicInfo);
+  $('.playlist').empty();
+  playlist = [];
+  musicInfo.map(term => {
+	  term = term.replace(' ', '+');
+	  fetch('https://itunes.apple.com/search?term=' + term +'&limit=10')
+		.then(res => {
+			if(res.ok) return res.json();
+		})
+		.then(json => {
+			console.log(json);
+			json.results.map(result => {
+				playlist.push($('<div>').html(`
+					<a href=` + result.previewUrl  + ` target="_blank">
+						<img src=` + result.artworkUrl100 + `>
+						<div class=row>
+							<p>` + result.artistName + `</p>
+							<small>` + result.trackName + `</small>
+							<audio controls>
+								<source src="` + result.previewUrl  + `">
+							</audio>
+						</div>
+					</a>
+				`));
+			});
+			return playlist;
+		})
+		.then(list => {
+			list.map(item => {
+				$('.playlist').append(item);
+			});
+		});
+  });
   console.log('Testing Music Call');
 });
